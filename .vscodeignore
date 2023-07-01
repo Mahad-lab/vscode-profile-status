@@ -22,5 +22,5 @@ img/**
 !img/logo.png
 
 **/*.js
-!dist/extension.js
+!out/extension.js
 
