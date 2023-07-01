@@ -1,18 +1,18 @@
-const vscode = require("vscode");
-const statusBarItem = require("./statusBarItem");
-const Environment = require("./environment");
-const globalState = require("./globalState");
-const configuration = require("./configuration");
+import * as vscode from 'vscode';
+import Environment from './environment';
+import globalState from './globalState';
+import * as statusBarItem from './statusBarItem';
+import * as configuration from './configuration';
 
-let item;
-let profileName;
+let item: vscode.StatusBarItem;
+let profileName: string;
 
-async function activate(context) {
+async function activate(context: vscode.ExtensionContext) {
   let workspaceFolders = vscode.workspace.workspaceFolders;
 
   // a workspace is open
   if (workspaceFolders) {
-    let mainWorkspaceUri = workspaceFolders[0].uri;
+    let mainWorkspaceUri = workspaceFolders[0].uri.toString();
 
     try {
       let env = new Environment(context);
@@ -22,6 +22,7 @@ async function activate(context) {
       profileName = await state.getProfileName(mainWorkspaceUri);
 
       showStatusBarItem();
+      vscode.window.showInformationMessage('profile changed');
 
       let disposable = vscode.workspace.onDidChangeConfiguration(
         changeConfigurationHandler
@@ -35,7 +36,7 @@ async function activate(context) {
 }
 
 function showStatusBarItem() {
-  let alignment = configuration.getAlignment();
+  let alignment = configuration.getAlignment() as 'Left' | 'Right';
   item = statusBarItem.build(`Profile: ${profileName}`, alignment);
   item.show();
 }
@@ -45,13 +46,13 @@ function reload() {
   showStatusBarItem();
 }
 
-function changeConfigurationHandler(e) {
+function changeConfigurationHandler(e: vscode.ConfigurationChangeEvent) {
   // update only if extension setting was changed
   if (e.affectsConfiguration(configuration.getPrefix())) {
     reload();
   }
 }
 
-module.exports = {
+export {
   activate,
 };
